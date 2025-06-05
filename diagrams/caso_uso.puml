@@ -1,0 +1,19 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Usuário" as User
+
+rectangle "Sistema AWS" {
+  usecase "Enviar dados\nvia API" as UC1
+  usecase "Gravar em\nDynamoDB" as UC2
+  usecase "Fazer upload\nno S3" as UC3
+  usecase "Receber resposta\nprocessada" as UC4
+}
+
+User --> UC1
+UC1 --> UC2
+UC1 --> UC3
+UC1 --> UC4
+
+@enduml

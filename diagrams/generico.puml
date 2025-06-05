@@ -1,0 +1,56 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam handwritten false
+
+actor "Usuário"
+
+package "Camada de Apresentação" {
+  rectangle "Frontend (React)" as Frontend
+}
+
+package "Camada de Aplicação" {
+  component "API Gateway" as APIGW
+  component "Service Auth" as AuthService
+  component "Service Pedido" as PedidoService
+}
+
+package "Camada de Persistência" {
+  database "Banco de Usuários" as UserDB
+  database "Banco de Pedidos" as PedidoDB
+  folder "Bucket S3 - Arquivos" as FileStorage
+  queue "Fila de Processamento" as Queue
+}
+
+cloud "Serviço Externo" as ExternalAPI
+
+' Relacionamentos
+"Usuário" --> Frontend : acessa
+
+Frontend --> APIGW : HTTP REST\n(JSON)
+APIGW --> AuthService : autentica usuário\n<<sync>>
+APIGW --> PedidoService : envia pedidos\n<<async>>
+
+AuthService --> UserDB : SELECT / INSERT
+PedidoService --> PedidoDB : update pedido
+PedidoService --> FileStorage : envia PDF
+PedidoService --> Queue : envia mensagem
+
+Queue --> PedidoService : evento\n(processa em lote)
+
+PedidoService --> ExternalAPI : consulta status\n(SOAP)
+
+' Notas
+note right of AuthService
+Autentica usando token JWT
+e gera sessão temporária
+end note
+
+note left of Queue
+Mensagens expiradas em 24h
+end note
+
+' Multiplicidade
+PedidoService --> PedidoDB : 1..n : salvar itens
+
+@enduml

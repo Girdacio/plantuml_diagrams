@@ -1,0 +1,16 @@
+@startuml
+actor "Usuário" as User
+participant "API Gateway" as APIGW
+participant "Lambda Function" as Lambda
+participant "DynamoDB" as DB
+participant "S3 Bucket" as S3
+
+User -> APIGW : HTTP Request (ex: POST /upload)
+APIGW -> Lambda : Invoke Lambda function
+Lambda -> DB : Get item / Save item
+Lambda -> S3 : Upload file
+S3 --> Lambda : 200 OK
+Lambda --> APIGW : Response (JSON)
+APIGW --> User : HTTP 200 OK
+
+@enduml
