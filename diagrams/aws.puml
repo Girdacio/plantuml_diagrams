@@ -1,4 +1,6 @@
 @startuml
+left to right direction
+
 '=======================
 ' Estilo para retângulo com traço
 '=======================
@@ -27,6 +29,15 @@ skinparam rectangle<<agrupamento_tracejado>> {
 ' Integração
 !include <aws/ApplicationServices/AmazonAPIGateway/AmazonAPIGateway>
 
+' Content Delivery
+!include <aws/NetworkingContentDelivery/AmazonCloudFront/AmazonCloudFront>
+
+' Security
+!include <aws/SecurityIdentityCompliance/AWSWAF/AWSWAF>
+
+' Observability
+!include <aws/ManagementTools/AmazonCloudWatch/AmazonCloudWatch>
+
 '========================
 ' SEÇÃO 2 - Definição de participantes
 '========================
@@ -36,11 +47,14 @@ rectangle "Terminal (curl)" as Curl
 rectangle "Aplicação Web" as WebApp
 rectangle "App Mobile" as MobileApp
 
-rectangle "AWS Backend" <<agrupamento_tracejado>> {
+rectangle "AWS" <<agrupamento_tracejado>> {
   AMAZONS3(s3,"Bucket XPTO")
   AMAZONAPIGATEWAY(apiGateway, "API XPTO")
   AMAZONDYNAMODB(dynamoDB, "Tabela XPTO")
   AWSLAMBDA(lambda, "Função XPTO")
+  AMAZONCLOUDFRONT(cloudfront, "CDN\nDistribuição global, cache, SSL")
+  AWSWAF(waf, "WAF\nFirewall, IP blocking, geolocalização, rate limiting")
+  AMAZONCLOUDWATCH(cloudwatch, "CloudWatch\nLogs e Métricas")
 }
 
 '========================
@@ -50,13 +64,20 @@ User --> Curl
 User --> WebApp
 User --> MobileApp
 
-Curl --> apiGateway : Requisição REST
-WebApp --> apiGateway : API call
-MobileApp --> apiGateway : API call
+Curl --> cloudfront : Requisição REST
+WebApp --> cloudfront : API call
+MobileApp --> cloudfront : API call
+
+cloudfront -> waf
+waf -> apiGateway
 
 apiGateway -> lambda : Invoca função Lambda
 lambda --> dynamoDB : CRUD
 lambda --> s3 : Salva dados para analytics
+
+' Observability
+lambda --> cloudwatch : Logs
+apiGateway --> cloudwatch
 
 '========================
 ' SEÇÃO 4 - Notas
