@@ -1,4 +1,15 @@
 @startuml
+'=======================
+' Estilo para retângulo com traço
+'=======================
+skinparam rectangle<<agrupamento_tracejado>> {
+  StereotypeFontSize 0
+  BorderColor black
+  BorderStyle dashed
+  BackgroundColor #FFFFFF
+  FontColor black
+}
+
 '========================
 ' SEÇÃO 1 - Includes
 '========================
@@ -19,32 +30,36 @@
 '========================
 ' SEÇÃO 2 - Definição de participantes
 '========================
-actor "Usuário"
-AMAZONS3(s3,"Bucket XPTO")
-AMAZONAPIGATEWAY(apiGateway, "API XPTO")
-AMAZONDYNAMODB(dynamoDB, "Tabela XPTO")
-AWSLAMBDA(lambda, "Função XPTO") /' rectangle "Minha função" as Lambda <<$AWSLambda>>'/
+actor "Usuário" as User
+
+rectangle "Terminal (curl)" as Curl
+rectangle "Aplicação Web" as WebApp
+rectangle "App Mobile" as MobileApp
+
+rectangle "AWS Backend" <<agrupamento_tracejado>> {
+  AMAZONS3(s3,"Bucket XPTO")
+  AMAZONAPIGATEWAY(apiGateway, "API XPTO")
+  AMAZONDYNAMODB(dynamoDB, "Tabela XPTO")
+  AWSLAMBDA(lambda, "Função XPTO")
+}
 
 '========================
-' SEÇÃO 3 - Agrupamentos (opcional)
+' SEÇÃO 3 - Relacionamentos
 '========================
-' package "Backend AWS" {
-'   apiGateway
-'   lambda
-'   s3
-'   dynamoDB
-' }
+User --> Curl
+User --> WebApp
+User --> MobileApp
 
-'========================
-' SEÇÃO 4 - Relacionamentos
-'========================
-"Usuário" -> apiGateway
-apiGateway -> lambda
+Curl --> apiGateway : Requisição REST
+WebApp --> apiGateway : API call
+MobileApp --> apiGateway : API call
+
+apiGateway -> lambda : Invoca função Lambda
 lambda --> dynamoDB : CRUD
 lambda --> s3 : Salva dados para analytics
 
 '========================
-' SEÇÃO 5 - Notas (opcional)
+' SEÇÃO 4 - Notas
 '========================
 note right of lambda
   A Lambda pode:
