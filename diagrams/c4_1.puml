@@ -1,0 +1,13 @@
+@startuml C4_Context
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(user, "Usuário", "Pessoa que usa a API para calcular idade e dia da semana")
+
+System(system, "API Certidão Nascimento", "Serviço que retorna idade e dia da semana a partir da data de nascimento")
+
+System_Ext(gov, "Serviço de Cartório", "Integrações futuras com certidões oficiais")
+
+Rel(user, system, "Faz requisições REST")
+Rel(system, gov, "Pode consultar dados externos (futuro)")
+
+@enduml
