@@ -1,0 +1,18 @@
+@startuml C4_Container
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Usuário", "Pessoa usando a API REST")
+
+System_Boundary(system, "API Certidão Nascimento") {
+  Container(api, "AWS API Gateway", "API REST", "Recebe requisições HTTP dos usuários")
+  Container(lambda, "Lambda Certidao", "Lambda", "Contém lógica de cálculo de idade e dia da semana")
+  Container(db, "DynamoDB", "Banco NoSQL", "Armazena logs ou registros de chamadas")
+  Container(s3, "Bucket S3", "Armazenamento", "Armazena arquivos gerados ou logs")
+}
+
+Rel(user, api, "Chama via HTTP")
+Rel(api, lambda, "Dispara")
+Rel(lambda, db, "Consulta ou armazena")
+Rel(lambda, s3, "Grava arquivos")
+
+@enduml
