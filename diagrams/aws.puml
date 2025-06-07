@@ -82,7 +82,7 @@ apiGateway --> cloudwatch
 '========================
 ' SEÇÃO 4 - Notas
 '========================
-note right of lambda
+note top of lambda
   A Lambda pode:
   - Validar entrada
   - Gravar no S3
